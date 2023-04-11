@@ -1,23 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "allowJs": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
     "isolatedModules": true,
+    "lib": [ "ESNext", "DOM" ],
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "noEmit": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": [
-      "es2015",
-      "dom"
-    ],
-    "skipLibCheck": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": [ "codemirror" ]
   },
   "include": [
     "src"

@@ -16,7 +16,7 @@ type _Question = {
 
 };
 
-function Contest() {
+function Editor() {
 
     const [_id, setId] = React.useState<string>("");
     const [question, setQuestion] = React.useState<string>("");
@@ -339,6 +339,6 @@ function Contest() {
         </div>
     );
 }
-export default Contest;
+export default Editor;
 
 

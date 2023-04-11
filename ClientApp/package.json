@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "codemirror": "^5.65.12",
     "bootstrap": "~4.6.1",
     "jquery": "~3.6.0",
     "connected-react-router": "6.5.2",
