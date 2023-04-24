@@ -1,8 +1,40 @@
-﻿import React, { useEffect, useState } from 'react';
-import CodeMirror from 'codemirror';
-import 'codemirror/lib/codemirror';
-import 'codemirror/theme/dracula.css';
+﻿import React, { useState, useEffect,useRef } from 'react';
 import axios from "axios";
+
+interface EditorProps {
+    code: string;
+    onChange: (code: string) => void;
+}
+const Editor: React.FC<EditorProps> = ({ code, onChange }) => {
+    const editorRef = useRef<HTMLTextAreaElement | null>(null);
+
+    const handleChange = () => {
+        if (editorRef.current) {
+            const newCode = editorRef.current.value;
+            onChange(newCode);
+        }
+    };
+
+    return (
+        <textarea
+            ref={editorRef}
+            value={code}
+            onChange={handleChange}
+            className="editor"
+        />
+    );
+};
+interface OutputProps {
+    result: string;
+}
+
+const Output: React.FC<OutputProps> = ({ result }) => {
+    return (
+        <div className="output">
+            <pre>{result}</pre>
+        </div>
+    );
+};
 
 type _Question = {
     _id: string;
@@ -16,8 +48,28 @@ type _Question = {
     testCase3: string;
 };
 
-const Questions = () => {
-    let [_Questions, setQuestions] = useState<Array<_Question>>([]);
+const Questions: React.FC = () => {
+    const [code, setCode] = useState<string>('');
+    const [result, setResult] = useState<string>('');
+    const [_Questions, setQuestions] = useState<Array<_Question>>([]);
+
+    const handleCodeChange = (newCode: string) => {
+        setCode(newCode);
+    };
+
+    const handleRunClick = () => {
+        // Make API call to backend to execute code
+        console.log(code);
+        axios
+            .post('https://localhost:44322/api/Compiler', code ) // Update with your backend API endpoint for code execution
+            .then((response) => {
+                setResult(`Output: ${response.data}`); // Update with the response from backend
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
 
     useEffect(() => {
         axios.get("https://localhost:44322/api/Editor")
@@ -28,15 +80,6 @@ const Questions = () => {
                 console.log(err);
             });
     }, []);
-
-    useEffect(() => {
-        const editor = CodeMirror.fromTextArea(document.getElementById('editor') as HTMLTextAreaElement, {
-            value: 'Type your code here...',
-            theme: 'dracula'
-        });
-        editor.setValue('New code here...');
-    }, []);
-
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
 
@@ -49,33 +92,42 @@ const Questions = () => {
         }
     };
 
-
-    return (
-        <div className="row">
-            <div className="col-sm">
-                <textarea id='editor'
-                    placeholder="Type your code here" />
-            </div>
-            <div className="col-sm">
-                {(_Questions && _Questions.length > 0) && (
-                    <div className='question-section'>
-                        <div className='question-count'></div>
-                        <div>
-                            <span>question {currentQuestion + 1}</span>
-                            <div className='question-text'>{_Questions[currentQuestion]?.question}</div>
-                            <button
-                                type="button"
-                                className="btn btn-warning"
-                                onClick={() => handleNextQuestion()}
-                            >
-                                Next
-                            </button>
-                        </div>
+  
+   
+        return (
+            <div className="row">
+                <div className="col-sm">
+                    <div className="app">
+                        <Editor code={code} onChange={handleCodeChange} />
+                        <button onClick={handleRunClick} className="run-button">
+                            Run
+                        </button>
+                        <Output result={result} />
                     </div>
-                )}
+                </div>
+                <div className="col-sm">
+                    {(_Questions && _Questions.length > 0) && (
+                        <div className='question-section'>
+                            <div className='question-count'></div>
+                            <div>
+                                <span>question {currentQuestion + 1}</span>
+                                <div className='question-text'>{_Questions[currentQuestion]?.question}</div>
+                                <button
+                                    type="button"
+                                    className="btn btn-warning"
+                                    onClick={() => handleNextQuestion()}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
-export default Questions;
+
+    export default Questions;
+
+
