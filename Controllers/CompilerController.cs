@@ -69,7 +69,7 @@ namespace CodeEditor.Controllers
                         RedirectStandardInput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = false
                     }
                 };
 
