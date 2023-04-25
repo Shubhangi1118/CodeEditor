@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace CodeEditor.Controllers
 {
@@ -10,12 +11,17 @@ namespace CodeEditor.Controllers
     public class CompilerController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] string code)
+        public IActionResult Post()
         {
             try
             {
+                var jsonData = "";
+                using(StreamReader reader = new StreamReader(Request.Body,Encoding.UTF8)) {
+                    jsonData = reader.ReadToEndAsync().Result;
+                }
+                string code = jsonData;
                 // Generate a unique file name
-                var fileName = $"{Guid.NewGuid()}.cpp";
+                var fileName = $"{Guid.NewGuid().ToString("N")}.cpp";
 
                 // Get the path to the directory where the file will be saved
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "CodeFiles", fileName);
@@ -32,7 +38,8 @@ namespace CodeEditor.Controllers
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = "g++", // Use g++ directly without specifying the full path
-                        Arguments = $"{filePath} -o {Path.GetFileNameWithoutExtension(filePath)}", // Compile the code and generate an executable
+                        Arguments = $"{fileName} -o {Path.GetFileNameWithoutExtension(filePath)}.exe", 
+                        WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "CodeFiles"),
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
@@ -55,8 +62,10 @@ namespace CodeEditor.Controllers
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        FileName = $"{Path.GetFileNameWithoutExtension(filePath)}.exe", // Execute the compiled executable
+                        FileName = $"{Path.GetFileNameWithoutExtension(filePath)}", // Execute the compiled executable
+                        WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "CodeFiles"),
                         RedirectStandardOutput = true,
+
                         RedirectStandardInput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
