@@ -1,6 +1,7 @@
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 ## Package to be Installed
-g++ package should be installed and added to the envirnoment path variables for the code to work.
+https://sourceforge.net/projects/mingw/ download and install mingw from this link and then include g++ and gcc in the installation.
+Add g++ to the envirnoment path variables for the code to work.
 
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
