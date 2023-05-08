@@ -1,19 +1,12 @@
 ﻿import axios from "axios";
 import React from "react";
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-export { };
+
 type _Question = {
     _id: string;
     question: string;
     languages: Array<string>;
-    testCase1: string;
-    testCase2: string;
-    testCase3: string;
-    expectedOutput1: string;
-    expectedOutput2: string;
-    expectedOutput3: string;
-
-
+    testCases: Array<string>;
+    expectedOutputs: Array<string>;
 };
 
 function Editor() {
@@ -21,51 +14,37 @@ function Editor() {
     const [_id, setId] = React.useState<string>("");
     const [question, setQuestion] = React.useState<string>("");
     const [languages, setLanguages] = React.useState<Array<string>>([]);
-    const [testCase1, setTestCase1] = React.useState<string>("");
-    const [testCase2, setTestCase2] = React.useState<string>("");
-    const [testCase3, setTestCase3] = React.useState<string>("");
-    const [expectedOutput1, setExpectedOutput1] = React.useState<string>("");
-    const [expectedOutput2, setExpectedOutput2] = React.useState<string>("");
-    const [expectedOutput3, setExpectedOutput3] = React.useState<string>("");
+    const [testCases, setTestCases] = React.useState<Array<string>>([]);
+    const [expectedOutputs, setExpectedOutputs] = React.useState<Array<string>>([]);
     const [Questions, setQuestions] = React.useState<Array<_Question>>([]);
+    const [numTestCases, setNumTestCases] = React.useState<number>(1);
 
     React.useEffect(() => {
         (async () => await Load())();
     }, []);
-    async function Load() {
 
+    async function Load() {
         const result = await axios.get("https://localhost:44322/api/Editor");
         setQuestions(result.data);
-        console.log(result.data);
     }
+
     async function save(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault();
         try {
             await axios.post("https://localhost:44322/api/Editor", {
                 _id: "",
-                Question: question,
-                Languages: languages,
-                TestCase1: testCase1,
-                TestCase2: testCase2,
-                TestCase3: testCase3,
-                ExpectedOutput1: expectedOutput1,
-                ExpectedOutput2: expectedOutput2,
-                ExpectedOutput3: expectedOutput3
-
+                question: question,
+                languages: languages,
+                testCases: testCases,
+                expectedOutputs: expectedOutputs
             });
             alert("Question Added Successfully");
             setId("");
             setQuestion("");
             setLanguages([]);
-            setTestCase1("");
-            setTestCase2("");
-            setTestCase3("");
-            setExpectedOutput1("");
-            setExpectedOutput2("");
-            setExpectedOutput3("");
-
-
-            Load();
+            setTestCases([]);
+            setExpectedOutputs([]);
+            await Load();
         } catch (err) {
             alert(err);
         }
@@ -75,13 +54,8 @@ function Editor() {
         setId(question._id);
         setQuestion(question.question);
         setLanguages(question.languages);
-        setTestCase1(question.testCase1);
-        setTestCase2(question.testCase2);
-        setTestCase3(question.testCase3);
-        setExpectedOutput1(question.expectedOutput1);
-        setExpectedOutput2(question.expectedOutput2);
-        setExpectedOutput3(question.expectedOutput3);
-
+        setTestCases(question.testCases);
+        setExpectedOutputs(question.expectedOutputs);
     }
 
     async function DeleteQuestion(_id: string) {
@@ -90,46 +64,47 @@ function Editor() {
         setId("");
         setQuestion("");
         setLanguages([]);
-        setTestCase1("");
-        setTestCase2("");
-        setTestCase3("");
-        setExpectedOutput1("");
-        setExpectedOutput2("");
-        setExpectedOutput3("");
-        Load();
+        setTestCases([]);
+        setExpectedOutputs([]);
+        await Load();
+    }
+
+    function getTestCase(index: number): string {
+        return testCases[index] || "";
+    }
+
+    function setTestCase(index: number, value: string): void {
+        const newTestCases = [...testCases];
+        newTestCases[index] = value;
+        setTestCases(newTestCases);
+    }
+    function getExpectedOutput(index: number): string {
+        return expectedOutputs[index] || "";
+    }
+
+    function setExpectedOutput(index: number, value: string): void {
+        const newExpectedOutputs = [...expectedOutputs];
+        newExpectedOutputs[index] = value;
+        setExpectedOutputs(newExpectedOutputs);
     }
 
     async function update(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault();
         try {
-
-            await axios.put("https://localhost:44322/api/Editor/" + _id,
-
-
-                {
-                    _id: _id,
-                    Question: question,
-                    Languages: languages,
-                    TestCase1: testCase1,
-                    TestCase2: testCase2,
-                    TestCase3: testCase3,
-                    ExpectedOutput1: expectedOutput1,
-                    ExpectedOutput2: expectedOutput2,
-                    ExpectedOutput3: expectedOutput3
-
-                }
-            );
+            await axios.put("https://localhost:44322/api/Editor/" + _id, {
+                _id: _id,
+                question: question,
+                languages: languages,
+                testCase: testCases,
+                expectedOutputs: expectedOutputs
+            });
             alert("Question Updated");
             setId("");
             setQuestion("");
             setLanguages([]);
-            setTestCase1("");
-            setTestCase2("");
-            setTestCase3("");
-            setExpectedOutput1("");
-            setExpectedOutput2("");
-            setExpectedOutput3("");
-
+            setTestCases([]);
+            setExpectedOutputs([]);
+            
             Load();
         } catch (err) {
             alert(err);
@@ -178,102 +153,42 @@ function Editor() {
                                 setLanguages(event.target.value.split(','));
                             }}
                         />
-                    </div>
-                    <div className="form-group">
-                        <label>TestCase1</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="TestCases"
-                            value={testCase1}
+                    
+                        {Array.from({ length: numTestCases }).map((_, i) => (
+                            <div>
+                            <div className="form-group" key={i}>
+                                <label>TestCase {i + 1}</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id={`testCase${i + 1}`}
+                                    value={getTestCase(i)}
+                                    onChange={(event) => setTestCase(i, event.target.value)}
+                                />
+                            </div>
+                                <div className="form-group" key={i+1}>
+                                    <label>ExpectedOutput {i + 1}</label>
+                                <input 
+                                    type="text"
+                                    className="form-control"
+                                    id ={`expectedOutput${i + 1}`}
+                                    value={getExpectedOutput(i)}
+                                    onChange={(event)=> setExpectedOutput(i,event.target.value)}
+                                />
+                                </div>
+                                </div>
+                                    
+                        ))}
+                                
 
+                    <button
+                        type="button"
+                        className="btn btn-primary mt-2"
+                        onClick={() => setNumTestCases(numTestCases + 1)}
+                    >
+                        Add Test Case
+                    </button>
 
-                            onChange={(event) => {
-
-                                setTestCase1(event.target.value);
-                            }}
-
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>TestCase2</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="TestCases"
-                            value={testCase2}
-
-
-                            onChange={(event) => {
-
-                                setTestCase2(event.target.value);
-                            }}
-
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>TestCase3</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="TestCases"
-                            value={testCase3}
-
-
-                            onChange={(event) => {
-
-                                setTestCase3(event.target.value);
-                            }}
-
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>ExppectedOutput1</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="ExpectedOutput"
-                            value={expectedOutput1}
-
-
-                            onChange={(event) => {
-
-                                setExpectedOutput1(event.target.value);
-                            }}
-
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>ExpectedOutput2</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="ExpectedOutput"
-                            value={expectedOutput2}
-
-
-                            onChange={(event) => {
-
-                                setExpectedOutput2(event.target.value);
-                            }}
-
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>ExpectedOutput3</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="ExpectedOutput"
-                            value={expectedOutput3}
-
-
-                            onChange={(event) => {
-
-                                setExpectedOutput3(event.target.value);
-                            }}
-
-                        />
                     </div>
                     <div>
                         <button className="btn btn-primary mt-4" onClick={save}>
@@ -293,12 +208,8 @@ function Editor() {
                         <th scope="col">Question Id</th>
                         <th scope="col">Question</th>
                         <th scope="col">Languages</th>
-                        <th scope="col">TestCase1</th>
-                        <th scope="col">TestCase2</th>
-                        <th scope="col">TestCase3</th>
-                        <th scope="col">ExpectedOutput1</th>
-                        <th scope="col">ExpectedOutput2</th>
-                        <th scope="col">ExpectedOutput3</th>
+                        <th scope="col">TestCases</th>
+                        <th scope ="col">ExpectedOutputs</th>
                     </tr>
                 </thead>
                 {Questions.map(function fn(question: _Question) {
@@ -307,13 +218,20 @@ function Editor() {
                             <tr>
                                 <th scope="row">{question._id} </th>
                                 <td>{question.question}</td>
-                                <td>{question.languages.join("    ")}</td>
-                                <td>{question.testCase1}</td>
-                                <td>{question.testCase2}</td>
-                                <td>{question.testCase3}</td>
-                                <td>{question.expectedOutput1}</td>
-                                <td>{question.expectedOutput2}</td>
-                                <td>{question.expectedOutput3}</td>
+                                <td>{question.languages.join(", ")}</td>
+                                <td>
+                                    {question.testCases.map(function fn(testCase, index) {
+                                        return (<div key={index}>{testCase}</div>);
+
+                                    })}
+                                </td>
+                                <td>
+                                    {question.expectedOutputs.map(function fn(expectedOutput, index) {
+                                        return (<div key={index}>{expectedOutput}</div>);
+
+                                    })}
+                                    </td>
+
                                 <td>
                                     <button
                                         type="button"

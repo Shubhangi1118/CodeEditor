@@ -15,11 +15,7 @@ namespace CodeEditor.Models
 
         public List<string> Languages { get; set; }
 
-        public string TestCase1 { get; set; }
-        public string TestCase2 { get; set; }
-        public string TestCase3 { get; set; }
-        public string ExpectedOutput1 { get; set; }
-        public string ExpectedOutput2 { get; set; }
-        public string ExpectedOutput3 { get; set; }
+       public List<string> TestCases { get; set; }
+       public List<string> ExpectedOutputs { get; set; }
     }
 }

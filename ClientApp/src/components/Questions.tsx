@@ -1,11 +1,16 @@
-﻿import React, { useState, useEffect,useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
+
 
 interface EditorProps {
     code: string;
     onChange: (code: string) => void;
+    onLanguageChange: (language: string) => void;
+    selectedLanguage: string;
+    languageOptions: Array<string>;
 }
-const Editor: React.FC<EditorProps> = ({ code, onChange }) => {
+
+const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selectedLanguage, languageOptions }) => {
     const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
     const handleChange = () => {
@@ -15,13 +20,28 @@ const Editor: React.FC<EditorProps> = ({ code, onChange }) => {
         }
     };
 
+    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const language = event.target.value;
+        onLanguageChange(language);
+    };
+
     return (
-        <textarea
-            ref={editorRef}
-            value={code}
-            onChange={handleChange}
-            className="editor"
-        />
+        <div>
+            <select value={selectedLanguage} onChange={handleLanguageChange}>
+                {languageOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+            <textarea
+                ref={editorRef}
+                value={code}
+                onChange={handleChange}
+                className="editor"
+                style={{ height: '400px', width: '100%' }}
+            />
+        </div>
     );
 };
 interface OutputProps {
@@ -51,37 +71,42 @@ type _Question = {
 const Questions: React.FC = () => {
     const [code, setCode] = useState<string>('');
     const [result, setResult] = useState<string>('');
+    const [currentQuestion, setCurrentQuestion] = useState(0);
     const [_Questions, setQuestions] = useState<Array<_Question>>([]);
+    const [selectedLanguage, setSelectedLanguage] = useState<string>('C++');
+    const languageOptions = ['C++', 'Java', 'Python'];
 
     const handleCodeChange = (newCode: string) => {
-        setCode(newCode);
+        setCode(newCode);     
+    };
+
+    const handleLanguageChange = (language: string) => {
+        setSelectedLanguage(language);
     };
 
     const handleRunClick = () => {
         // Make API call to backend to execute code
         console.log(code);
         axios
-            .post('https://localhost:44322/api/Compiler', code ) // Update with your backend API endpoint for code execution
+            .post('https://localhost:44322/api/Compiler', { code, language: selectedLanguage })
             .then((response) => {
-                setResult(`Output: ${response.data}`); // Update with the response from backend
+                setResult(`Output: ${response.data.output}`); // Update with the response from backend
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
-
     useEffect(() => {
-        axios.get("https://localhost:44322/api/Editor")
-            .then(response => {
+        axios
+            .get('https://localhost:44322/api/Editor')
+            .then((response) => {
                 setQuestions(response.data);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err);
             });
     }, []);
-
-    const [currentQuestion, setCurrentQuestion] = useState(0);
 
     const handleNextQuestion = () => {
         const nextQuestion = currentQuestion + 1;
@@ -92,42 +117,44 @@ const Questions: React.FC = () => {
         }
     };
 
-  
-   
-        return (
-            <div className="row">
-                <div className="col-sm">
-                    <div className="app">
-                        <Editor code={code} onChange={handleCodeChange} />
-                        <button onClick={handleRunClick} className="run-button">
-                            Run
-                        </button>
-                        <Output result={result} />
-                    </div>
-                </div>
-                <div className="col-sm">
-                    {(_Questions && _Questions.length > 0) && (
-                        <div className='question-section'>
-                            <div className='question-count'></div>
-                            <div>
-                                <span>question {currentQuestion + 1}</span>
-                                <div className='question-text'>{_Questions[currentQuestion]?.question}</div>
-                                <button
-                                    type="button"
-                                    className="btn btn-warning"
-                                    onClick={() => handleNextQuestion()}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    )}
+    return (
+        <div className="row">
+            <div className="col-sm">
+                <div className="app">
+                    <Editor
+                        code={code}
+                        onChange={handleCodeChange}
+                        onLanguageChange={handleLanguageChange}
+                        selectedLanguage={selectedLanguage}
+                        languageOptions={languageOptions}
+                    />
+                    <button onClick={handleRunClick} className="run-button">
+                        Run
+                    </button>
+                    <Output result={result} />
                 </div>
             </div>
-        );
-    };
+            <div className="col-sm">
+                {(_Questions && _Questions.length > 0) && (
+                    <div className='question-section'>
+                        <div className='question-count'></div>
+                        <div>
+                            <span>question {currentQuestion + 1}</span>
+                            <div className='question-text'>{_Questions[currentQuestion]?.question}</div>
+                            <button
+                                type="button"
+                                className="btn btn-warning"
+                                onClick={() => handleNextQuestion()}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
 
 
-    export default Questions;
-
-
+export default Questions;

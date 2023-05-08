@@ -15,6 +15,8 @@ const history = createBrowserHistory({ basename: baseUrl });
 
 // Get the application-wide store instance, prepopulating with state from the server where available.
 const store = configureStore(history);
+<script src="https://unpkg.com/monaco-editor@0.23.0/min/vs/loader.js"></script>
+
 
 ReactDOM.render(
     <Provider store={store}>
