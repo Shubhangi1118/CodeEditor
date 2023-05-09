@@ -140,15 +140,24 @@ namespace CodeEditor.Controllers
                 }
                 else if (language == "Java")
                 {
-                    var fileName = $"{Guid.NewGuid().ToString("N")}.java";
+                    string className = "";
+                    using (var reader = new StringReader(code))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (line.Trim().StartsWith("public class"))
+                            {
+                                className = line.Trim().Substring("public class".Length).Trim().Split(' ')[0];
+                                break;
+                            }
+                        }
+                    }
+                    var fileName = $"{className}.java";
 
-                    // Get the path to the directory where the file will be saved
+                    // Save the Java code to the file using the new filename
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "CodeFiles", fileName);
-
-                    // Create the directory if it doesn't exist
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                    // Write the code to the file
                     System.IO.File.WriteAllText(filePath, code);
 
                     // Compile the code using javac compiler
@@ -206,6 +215,7 @@ namespace CodeEditor.Controllers
                     // Return the output of the executed code
                     return Ok(new { FileName = fileName, FilePath = filePath, Output = output });
                 }
+
                 else
                 {
                     return BadRequest($"Unsupported programming language: {language}");
