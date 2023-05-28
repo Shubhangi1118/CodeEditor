@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 
 interface EditorProps {
@@ -59,23 +60,24 @@ const Output: React.FC<OutputProps> = ({ result }) => {
 type _Question = {
     _id: string;
     question: string;
-    expectedOutput1: string;
-    expectedOutput2: string;
-    expectedOutput3: string;
     languages: Array<string>;
-    testCase1: string;
-    testCase2: string;
-    testCase3: string;
+    testCases: Array<string>;
+    expectedOutputs: Array<string>;
+    
 };
+interface RouteParams {
+    participantId: string;
+}
 
 const Questions: React.FC = () => {
+    const { participantId } = useParams<RouteParams>();
     const [code, setCode] = useState<string>('');
     const [result, setResult] = useState<string>('');
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [_Questions, setQuestions] = useState<Array<_Question>>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('C++');
     const languageOptions = ['C++', 'Java', 'Python'];
-
+    console.log(participantId);
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);     
     };
@@ -83,20 +85,7 @@ const Questions: React.FC = () => {
     const handleLanguageChange = (language: string) => {
         setSelectedLanguage(language);
     };
-
-    const handleRunClick = () => {
-        // Make API call to backend to execute code
-        console.log(code);
-        axios
-            .post('https://localhost:44322/api/Compiler', { code, language: selectedLanguage })
-            .then((response) => {
-                setResult(`Output: ${response.data.output}`); // Update with the response from backend
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-
+    
     useEffect(() => {
         axios
             .get('https://localhost:44322/api/Editor')
@@ -116,6 +105,40 @@ const Questions: React.FC = () => {
             setCurrentQuestion(0);
         }
     };
+    const handleSendFirstTestcase = () => {
+        // Make API call to backend to execute code with the first testcase and expected output
+        axios
+        axios
+            .post('https://localhost:44322/api/Compiler2', { code, language:selectedLanguage, testCase: _Questions[currentQuestion].testCases[0] })
+            .then((response) => {
+                setResult(`Output: ${response.data.output}`); // Update with the response from backend
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const handleSendAllTestcases = () => {
+        // Make API call to backend to execute code with all testcases and expected outputs
+        if (_Questions.length === 0) {
+            console.log('Questions data is not available.');
+            return;
+        }
+
+        axios.post('https://localhost:44322/api/Compiler', {
+            code,
+            language: selectedLanguage,
+            testCases: _Questions[currentQuestion].testCases,
+            expectedOutputs: _Questions[currentQuestion].expectedOutputs,
+            participantId: participantId
+        })
+            .then((response) => {
+                setResult(`Output: ${response.data.output}`); // Update with the response from backend
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     return (
         <div className="row">
@@ -128,8 +151,11 @@ const Questions: React.FC = () => {
                         selectedLanguage={selectedLanguage}
                         languageOptions={languageOptions}
                     />
-                    <button onClick={handleRunClick} className="run-button">
-                        Run
+                    <button onClick={handleSendFirstTestcase} className="send-button">
+                        Send First Testcase
+                    </button>
+                    <button onClick={handleSendAllTestcases} className="send-button">
+                        Send All Testcases
                     </button>
                     <Output result={result} />
                 </div>

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-
 var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddScoped<IService, Service>();
 
@@ -17,16 +16,15 @@ builder.Services.AddSpaStaticFiles(configuration =>
 {
     configuration.RootPath = "ClientApp/build";
 });
-
-
-
 builder.Services.Configure<EditorSetting>(
    builder.Configuration.GetSection("User1Database"));
 builder.Services.Configure<ParticipantSetting>(
    builder.Configuration.GetSection("User2Database"));
+builder.Services.Configure<ResultSetting>(
+   builder.Configuration.GetSection("User3Database"));
 builder.Services.AddSingleton<EditorService>();
 builder.Services.AddSingleton<ParticipantService>();
-
+builder.Services.AddSingleton<ResultService>();
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseStaticFiles();

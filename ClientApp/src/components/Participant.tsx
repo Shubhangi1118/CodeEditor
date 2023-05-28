@@ -1,6 +1,7 @@
-﻿import axios from "axios";
+﻿
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import axios, { AxiosResponse } from "axios";
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 export { };
 type _Participant = {
@@ -11,6 +12,8 @@ type _Participant = {
 };
 
 function Participant() {
+    const history = useHistory();
+    const [isFormValid, setIsFormValid] = React.useState<boolean>(false);
     const [_id, setId] = React.useState<string>("");
     const [name, setName] = React.useState<string>("");
     const [email, setEmail] = React.useState<string>("");
@@ -24,24 +27,30 @@ function Participant() {
 
         const result = await axios.get("https://localhost:44322/api/Participant");
         setParticipants(result.data);
-        console.log(result.data);
+        
     }
+    const handleInputChange = () => {
+        const isValid = name !== "" && email !== "" && college !== "";
+        setIsFormValid(isValid);
+    };
+
     async function save(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault();
         try {
-            await axios.post("https://localhost:44322/api/Participant/", {
+            const response: AxiosResponse = await axios.post("https://localhost:44322/api/Participant/", {
                 _id: "",
                 Name: name,
                 Email: email,
                 College: college
             });
+            const participantId = response.data._id; 
             alert("Inforrmation Added Successfully");
             setId("");
             setName("");
             setEmail("");
             setCollege("");
 
-            Load();
+            history.push(`/Questions/${participantId}`); // Navigate to the Questions page with the participant ID
         } catch (err) {
             alert(err);
         }
@@ -75,7 +84,10 @@ function Participant() {
                             value={name}
                             onChange={(event) => {
                                 setName(event.target.value);
+                                handleInputChange(); // Call the handler
                             }}
+
+                            required
                         />
                     </div>
 
@@ -86,13 +98,11 @@ function Participant() {
                             className="form-control"
                             id="Email"
                             value={email}
-
-
                             onChange={(event) => {
-
                                 setEmail(event.target.value);
+                                handleInputChange(); // Call the handler
                             }}
-
+                            required
                         />
                     </div>
                     <div className="form-group">
@@ -102,23 +112,24 @@ function Participant() {
                             className="form-control"
                             id="College"
                             value={college}
-
- 
                             onChange={(event) => {
-
                                 setCollege(event.target.value);
+                                handleInputChange(); // Call the handler
                             }}
+
+                            required
 
                         />
                     </div>
 
                     <div>
-                        <button className="btn btn-primary mt-4" onClick={save}>
+                        <button className="btn btn-primary mt-4" onClick={save} disabled={!isFormValid}>
                             Add
                         </button>
+
                     </div>
                     <div>
-                        <Link to="/Questions">
+                        <Link to="/Questions/:id">
                             <button className="btn btn-primary mt-4">Enter the Contest</button>
                         </Link>
                     </div>

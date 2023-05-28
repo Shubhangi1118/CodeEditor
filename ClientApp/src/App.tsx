@@ -6,7 +6,6 @@ import Questions from './components/Questions';
 import Layout from './components/Layout';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-
 function App() {
     return (
         <Layout>
@@ -14,10 +13,9 @@ function App() {
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route path="/Editor" component={Editor} />
-                    <Route path="/Participant" component={Participant} />
-                    <Route path="/Questions" component={Questions}/>
+                    <Route exact path="/Participant" component={Participant} />
+                    <Route path="/Questions/:participantId" component={Questions} />
                 </Switch>
-
             </Router>
         </Layout>
     );
