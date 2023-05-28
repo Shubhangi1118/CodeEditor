@@ -126,15 +126,7 @@ function Participant() {
                         <button className="btn btn-primary mt-4" onClick={save} disabled={!isFormValid}>
                             Add
                         </button>
-
-                    </div>
-                    <div>
-                        <Link to="/Questions/:id">
-                            <button className="btn btn-primary mt-4">Enter the Contest</button>
-                        </Link>
-                    </div>
-                        
-                    
+                    </div> 
                 </form>
             </div>
             <br></br>
@@ -142,7 +134,6 @@ function Participant() {
 
         </div>
     );
-
 
 }
 export default Participant;
