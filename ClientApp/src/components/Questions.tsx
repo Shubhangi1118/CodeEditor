@@ -76,6 +76,11 @@ const Questions: React.FC = () => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [_Questions, setQuestions] = useState<Array<_Question>>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('C++');
+    const [customTestCase, setCustomTestCase] = useState(_Questions[currentQuestion]?.testCases[0] || '');
+    const [customTestCaseEntered, setCustomTestCaseEntered] = useState(false);
+
+
+
     const languageOptions = ['C++', 'Java', 'Python'];
     console.log(participantId);
     const handleCodeChange = (newCode: string) => {
@@ -96,7 +101,7 @@ const Questions: React.FC = () => {
                 console.log(err);
             });
     }, []);
-
+    
     const handleNextQuestion = () => {
         const nextQuestion = currentQuestion + 1;
         if (nextQuestion < _Questions.length) {
@@ -106,12 +111,11 @@ const Questions: React.FC = () => {
         }
     };
     const handleSendFirstTestcase = () => {
-        // Make API call to backend to execute code with the first testcase and expected output
+        // Make API call to backend to execute code with the custom test case and expected output
         axios
-        axios
-            .post('https://localhost:44322/api/Compiler2', { code, language:selectedLanguage, testCase: _Questions[currentQuestion].testCases[0] })
+            .post('https://localhost:44322/api/Compiler2', { code, language: selectedLanguage, testCase: customTestCase })
             .then((response) => {
-                setResult(`Output: ${response.data.output}`); // Update with the response from backend
+                setResult(`Output: ${response.data.output}`); // Update with the response from the backend
             })
             .catch((err) => {
                 console.log(err);
@@ -151,6 +155,21 @@ const Questions: React.FC = () => {
                         selectedLanguage={selectedLanguage}
                         languageOptions={languageOptions}
                     />
+                    <div className="form-group" key="customTestCase">
+                        <label>Custom Test Case</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="customTestCase"
+                            value={customTestCaseEntered ? customTestCase : _Questions[currentQuestion]?.testCases[0] || ''}
+                            onChange={(event) => {
+                                setCustomTestCase(event.target.value);
+                                setCustomTestCaseEntered(true);
+                            }}
+                        />
+                    </div>
+
+
                     <button onClick={handleSendFirstTestcase} className="send-button">
                         Send First Testcase
                     </button>

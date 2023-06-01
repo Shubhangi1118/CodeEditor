@@ -28,12 +28,14 @@
     <None Remove="ClientApp\src\components\Editor.tsx" />
     <None Remove="ClientApp\src\components\Participant.tsx" />
     <None Remove="ClientApp\src\components\Questions.tsx" />
+    <None Remove="ClientApp\src\components\Result.tsx" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\components\Editor.tsx" />
     <TypeScriptCompile Include="ClientApp\src\components\Questions.tsx" />
     <TypeScriptCompile Include="ClientApp\src\components\Participant.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\Result.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

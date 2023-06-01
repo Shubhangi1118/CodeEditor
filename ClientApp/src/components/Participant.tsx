@@ -1,6 +1,6 @@
 ﻿
 import React from "react";
-import { Link, useHistory } from "react-router-dom";
+import {useHistory } from "react-router-dom";
 import axios, { AxiosResponse } from "axios";
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 export { };

@@ -1,5 +1,6 @@
 ﻿import axios from "axios";
 import React from "react";
+import { Link } from "react-router-dom";
 
 type _Question = {
     _id: string;
@@ -188,7 +189,11 @@ function Editor() {
                     >
                         Add Test Case
                     </button>
-
+                    </div>
+                    <div>
+                        <button>
+                            <Link to="/Result">Check the results</Link>
+                        </button>
                     </div>
                     <div>
                         <button className="btn btn-primary mt-4" onClick={save}>

@@ -3,6 +3,7 @@ import Editor from './components/Editor';
 import Participant from './components/Participant';
 import Home from './components/Home';
 import Questions from './components/Questions';
+import Result from './components/Result';
 import Layout from './components/Layout';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ function App() {
                     <Route exact path="/" component={Home} />
                     <Route path="/Editor" component={Editor} />
                     <Route exact path="/Participant" component={Participant} />
+                    <Route path="/Result" component={Result}/>
                     <Route path="/Questions/:participantId" component={Questions} />
                 </Switch>
             </Router>
