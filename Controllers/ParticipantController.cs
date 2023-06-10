@@ -3,8 +3,8 @@ using CodeEditor.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CodeEditor.Models;
-using CodeEditor.Services;
+using Main.Supervisor;
+using Main.Models;
 
 namespace CodeEditor.Controllers
 {
@@ -13,21 +13,22 @@ namespace CodeEditor.Controllers
     public class ParticipantController : Controller
     {
 
-        private readonly ParticipantService _ParticipantService;
+        private ParticipantSupervisor _ParticipantSupervisor;
 
-        public ParticipantController(ParticipantService ParticipantsService) =>
-            _ParticipantService = ParticipantsService;
+        public ParticipantController(ParticipantSupervisor ParticipantsSupervisor) =>
+            _ParticipantSupervisor = ParticipantsSupervisor;
 
         [HttpGet]
-        public async Task<List<Participant>> Get() =>
-            await _ParticipantService.GetAsync();
-
+        public async Task<List<ParticipantData>> Get()
+        {
+            await _ParticipantSupervisor.GetParticipantAsync();
+            return (new List<ParticipantData>());
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Participant newParticipant)
+        public async Task<IActionResult> Post(ParticipantData newParticipant)
         {
-            await _ParticipantService.CreateAsync(newParticipant);
-
+         await _ParticipantSupervisor.CreateParticipantAsync(newParticipant);
             return CreatedAtAction(nameof(Get), new { id = newParticipant._id }, newParticipant);
         }
 

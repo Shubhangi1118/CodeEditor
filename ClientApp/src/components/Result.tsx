@@ -43,10 +43,10 @@ const Result: React.FC = () => {
                     const participantResults = results.filter((result) => result.participantId === participant._id);
                     return (
                         <div key={participant._id}>
-                            <h2>Participant: {participant.name}</h2>
+                            <h4>Participant: {participant.name}</h4>
                             {participantResults.length > 0 ? (
                                 <div>
-                                    <h3>Results:</h3>
+                                    <h4>Results:</h4>
                                     {participantResults.map((result) => (
                                         <div key={result._id}>
                                             <h4>Result ID: {result._id}</h4>

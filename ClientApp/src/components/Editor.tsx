@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 type _Question = {
     _id: string;
     question: string;
-    languages: Array<string>;
     testCases: Array<string>;
     expectedOutputs: Array<string>;
 };
@@ -14,7 +13,6 @@ function Editor() {
 
     const [_id, setId] = React.useState<string>("");
     const [question, setQuestion] = React.useState<string>("");
-    const [languages, setLanguages] = React.useState<Array<string>>([]);
     const [testCases, setTestCases] = React.useState<Array<string>>([]);
     const [expectedOutputs, setExpectedOutputs] = React.useState<Array<string>>([]);
     const [Questions, setQuestions] = React.useState<Array<_Question>>([]);
@@ -35,14 +33,12 @@ function Editor() {
             await axios.post("https://localhost:44322/api/Editor", {
                 _id: "",
                 question: question,
-                languages: languages,
                 testCases: testCases,
                 expectedOutputs: expectedOutputs
             });
             alert("Question Added Successfully");
             setId("");
             setQuestion("");
-            setLanguages([]);
             setTestCases([]);
             setExpectedOutputs([]);
             await Load();
@@ -54,7 +50,6 @@ function Editor() {
     async function editQuestion(question: _Question) {
         setId(question._id);
         setQuestion(question.question);
-        setLanguages(question.languages);
         setTestCases(question.testCases);
         setExpectedOutputs(question.expectedOutputs);
     }
@@ -64,7 +59,6 @@ function Editor() {
         alert("Question deleted Successfully");
         setId("");
         setQuestion("");
-        setLanguages([]);
         setTestCases([]);
         setExpectedOutputs([]);
         await Load();
@@ -95,14 +89,13 @@ function Editor() {
             await axios.put("https://localhost:44322/api/Editor/" + _id, {
                 _id: _id,
                 question: question,
-                languages: languages,
                 testCase: testCases,
                 expectedOutputs: expectedOutputs
             });
             alert("Question Updated");
             setId("");
             setQuestion("");
-            setLanguages([]);
+ 
             setTestCases([]);
             setExpectedOutputs([]);
             
@@ -141,20 +134,7 @@ function Editor() {
                             }}
                         />
                     </div>
-
-                    <div className="form-group">
-                        <label>Languages</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="Languages"
-                            value={languages}
-
-                            onChange={(event) => {
-                                setLanguages(event.target.value.split(','));
-                            }}
-                        />
-                    
+                    <div>
                         {Array.from({ length: numTestCases }).map((_, i) => (
                             <div>
                             <div className="form-group" key={i}>
@@ -223,7 +203,6 @@ function Editor() {
                             <tr>
                                 <th scope="row">{question._id} </th>
                                 <td>{question.question}</td>
-                                <td>{question.languages.join(", ")}</td>
                                 <td>
                                     {question.testCases.map(function fn(testCase, index) {
                                         return (<div key={index}>{testCase}</div>);

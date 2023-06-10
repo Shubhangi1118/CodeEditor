@@ -1,7 +1,11 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-java';
+import 'ace-builds/src-noconflict/mode-c_cpp';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/theme-dracula';
 
 interface EditorProps {
     code: string;
@@ -12,20 +16,25 @@ interface EditorProps {
 }
 
 const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selectedLanguage, languageOptions }) => {
-    const editorRef = useRef<HTMLTextAreaElement | null>(null);
+    const editorRef = useRef<AceEditor | null>(null);
 
-    const handleChange = () => {
-        if (editorRef.current) {
-            const newCode = editorRef.current.value;
-            onChange(newCode);
-        }
+    const handleChange = (value: string) => {
+        onChange(value);
     };
 
     const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const language = event.target.value;
         onLanguageChange(language);
     };
+    let mode = '';
 
+    if (selectedLanguage === 'C++') {
+        mode = 'c_cpp';
+    } else if (selectedLanguage === 'Java') {
+        mode = 'java';
+    } else if (selectedLanguage === 'Python') {
+        mode = 'python';
+    }
     return (
         <div>
             <select value={selectedLanguage} onChange={handleLanguageChange}>
@@ -35,13 +44,25 @@ const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selec
                     </option>
                 ))}
             </select>
-            <textarea
-                ref={editorRef}
-                value={code}
-                onChange={handleChange}
-                className="editor"
-                style={{ height: '400px', width: '100%' }}
-            />
+            <div className="editor-wrapper">
+                <AceEditor
+                    mode={mode }
+                    theme="dracula"
+                    value={code}
+                    onChange={handleChange}
+                    editorProps={{ $blockScrolling: true }}
+                    width="100%"
+                    height="400px"
+                    ref={(ref) => {
+                        editorRef.current = ref;
+                    }}
+                    setOptions={{
+                        enableBasicAutocompletion: true,
+                        enableLiveAutocompletion: true,
+                        enableSnippets: true,
+                    }}
+                />
+            </div>
         </div>
     );
 };
@@ -60,7 +81,6 @@ const Output: React.FC<OutputProps> = ({ result }) => {
 type _Question = {
     _id: string;
     question: string;
-    languages: Array<string>;
     testCases: Array<string>;
     expectedOutputs: Array<string>;
     
@@ -171,10 +191,10 @@ const Questions: React.FC = () => {
 
 
                     <button onClick={handleSendFirstTestcase} className="send-button">
-                        Send First Testcase
+                        Run
                     </button>
                     <button onClick={handleSendAllTestcases} className="send-button">
-                        Send All Testcases
+                        Submit
                     </button>
                     <Output result={result} />
                 </div>

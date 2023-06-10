@@ -32,6 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Contest\Contest.csproj" />
+    <ProjectReference Include="..\Main\Main.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\components\Editor.tsx" />
     <TypeScriptCompile Include="ClientApp\src\components\Questions.tsx" />
     <TypeScriptCompile Include="ClientApp\src\components\Participant.tsx" />

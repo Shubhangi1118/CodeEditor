@@ -13,8 +13,6 @@ namespace CodeEditor.Models
 
         public string Question { get; set; }
 
-        public List<string> Languages { get; set; }
-
        public List<string> TestCases { get; set; }
        public List<string> ExpectedOutputs { get; set; }
     }
