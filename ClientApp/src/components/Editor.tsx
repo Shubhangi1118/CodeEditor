@@ -47,13 +47,6 @@ function Editor() {
         }
     }
 
-    async function editQuestion(question: _Question) {
-        setId(question._id);
-        setQuestion(question.question);
-        setTestCases(question.testCases);
-        setExpectedOutputs(question.expectedOutputs);
-    }
-
     async function DeleteQuestion(_id: string) {
         await axios.delete("https://localhost:44322/api/Editor/" + _id);
         alert("Question deleted Successfully");
@@ -81,28 +74,6 @@ function Editor() {
         const newExpectedOutputs = [...expectedOutputs];
         newExpectedOutputs[index] = value;
         setExpectedOutputs(newExpectedOutputs);
-    }
-
-    async function update(event: React.MouseEvent<HTMLButtonElement>) {
-        event.preventDefault();
-        try {
-            await axios.put("https://localhost:44322/api/Editor/" + _id, {
-                _id: _id,
-                question: question,
-                testCase: testCases,
-                expectedOutputs: expectedOutputs
-            });
-            alert("Question Updated");
-            setId("");
-            setQuestion("");
- 
-            setTestCases([]);
-            setExpectedOutputs([]);
-            
-            Load();
-        } catch (err) {
-            alert(err);
-        }
     }
 
     return (
@@ -179,9 +150,6 @@ function Editor() {
                         <button className="btn btn-primary mt-4" onClick={save}>
                             Add
                         </button>
-                        <button className="btn btn-warning mt-4" onClick={update}>
-                            Update
-                        </button>
                     </div>
                 </form>
             </div>
@@ -217,13 +185,6 @@ function Editor() {
                                     </td>
 
                                 <td>
-                                    <button
-                                        type="button"
-                                        className="btn btn-warning"
-                                        onClick={() => editQuestion(question)}
-                                    >
-                                        Edit
-                                    </button>
                                     <button
                                         type="button"
                                         className="btn btn-danger"

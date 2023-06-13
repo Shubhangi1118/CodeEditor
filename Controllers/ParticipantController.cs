@@ -1,5 +1,4 @@
-﻿using CodeEditor.Models;
-using CodeEditor.Services;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -31,8 +30,6 @@ namespace CodeEditor.Controllers
          await _ParticipantSupervisor.CreateParticipantAsync(newParticipant);
             return CreatedAtAction(nameof(Get), new { id = newParticipant._id }, newParticipant);
         }
-
-
 
     }
 }

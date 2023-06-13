@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CodeEditor.Models;
-using CodeEditor.Services;
+using Main.Models;
+using Main.Supervisor;
 
 namespace CodeEditor.Controllers
 {
@@ -10,64 +10,42 @@ namespace CodeEditor.Controllers
     [Route("api/[controller]")]
     public class EditorController : Controller
     {
-        private readonly EditorService _EditorService;
+        private readonly EditorSupervisor _EditorSupervisor;
 
-        public EditorController(EditorService EditorsService) =>
-            _EditorService = EditorsService;
+        public EditorController(EditorSupervisor EditorsSupervisor) =>
+            _EditorSupervisor = EditorsSupervisor;
 
         [HttpGet]
-        public async Task<List<Editor>> Get() =>
-            await _EditorService.GetAsync();
+        public async Task<List<EditorData>> Get()=>
+        
+            await _EditorSupervisor.GetEditorAsync();
+            
 
         [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<Editor>> Get(string id)
+        public async Task<ActionResult<EditorData>> Get(string id)
         {
-            var contest = await _EditorService.GetAsync(id);
+            var question = await _EditorSupervisor.GetEditorAsync(id);
 
-            if (contest is null)
+            if (question is null)
             {
                 return NotFound();
             }
 
-            return contest;
+            return question;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Editor newContest)
+        public async Task<IActionResult> Post(EditorData newQuestion)
         {
-            await _EditorService.CreateAsync(newContest);
+            await _EditorSupervisor.CreateEditorAsync(newQuestion);
 
-            return CreatedAtAction(nameof(Get), new { id = newContest._id }, newContest);
-        }
-
-        [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(string id, Editor updatedContest)
-        {
-            var user = await _EditorService.GetAsync(id);
-
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            updatedContest._id = user._id;
-
-            await _EditorService.UpdateAsync(id, updatedContest);
-
-            return NoContent();
+            return CreatedAtAction(nameof(Get), new { id = newQuestion._id }, newQuestion);
         }
 
         [HttpDelete("{id:length(24)}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var contest = await _EditorService.GetAsync(id);
-
-            if (contest is null)
-            {
-                return NotFound();
-            }
-
-            await _EditorService.RemoveAsync(id);
+            await _EditorSupervisor.RemoveEditorAsync(id);
 
             return NoContent();
         }

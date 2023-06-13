@@ -102,7 +102,6 @@ const Questions: React.FC = () => {
 
 
     const languageOptions = ['C++', 'Java', 'Python'];
-    console.log(participantId);
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);     
     };
@@ -135,7 +134,7 @@ const Questions: React.FC = () => {
         axios
             .post('https://localhost:44322/api/Compiler2', { code, language: selectedLanguage, testCase: customTestCase })
             .then((response) => {
-                setResult(`Output: ${response.data.output}`); // Update with the response from the backend
+                setResult(`Output: ${response.data}`); // Update with the response from the backend
             })
             .catch((err) => {
                 console.log(err);
