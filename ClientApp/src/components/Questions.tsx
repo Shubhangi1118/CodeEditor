@@ -98,10 +98,8 @@ const Questions: React.FC = () => {
     const [selectedLanguage, setSelectedLanguage] = useState<string>('C++');
     const [customTestCase, setCustomTestCase] = useState(_Questions[currentQuestion]?.testCases[0] || '');
     const [customTestCaseEntered, setCustomTestCaseEntered] = useState(false);
-
-
-
     const languageOptions = ['C++', 'Java', 'Python'];
+
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);     
     };
@@ -151,12 +149,13 @@ const Questions: React.FC = () => {
         axios.post('https://localhost:44322/api/Compiler', {
             code,
             language: selectedLanguage,
+            QuestionNumber: currentQuestion + 1,
             testCases: _Questions[currentQuestion].testCases,
             expectedOutputs: _Questions[currentQuestion].expectedOutputs,
             participantId: participantId
         })
             .then((response) => {
-                setResult(`Output: ${response.data.output}`); // Update with the response from backend
+                setResult(`Output: "Success"`); // Update with the response from backend
             })
             .catch((err) => {
                 console.log(err);
@@ -188,7 +187,6 @@ const Questions: React.FC = () => {
                         />
                     </div>
 
-
                     <button onClick={handleSendFirstTestcase} className="send-button">
                         Run
                     </button>
@@ -219,6 +217,4 @@ const Questions: React.FC = () => {
         </div>
     );
 };
-
-
 export default Questions;

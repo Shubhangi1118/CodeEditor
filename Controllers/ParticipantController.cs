@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Main.Supervisor;
 using Main.Models;
+using System.Globalization;
 
 namespace CodeEditor.Controllers
 {
@@ -18,10 +19,20 @@ namespace CodeEditor.Controllers
             _ParticipantSupervisor = ParticipantsSupervisor;
 
         [HttpGet]
-        public async Task<List<ParticipantData>> Get()
-        {
+        public async Task<List<ParticipantData>> Get()=>
             await _ParticipantSupervisor.GetParticipantAsync();
-            return (new List<ParticipantData>());
+
+        [HttpGet("{id:length(24)}")]
+        public async Task<ActionResult<ParticipantData>> Get(string id)
+        {
+            var participant = await _ParticipantSupervisor.GetParticipantAsync(id);
+
+            if (participant is null)
+            {
+                return NotFound();
+            }
+
+            return participant;
         }
 
         [HttpPost]

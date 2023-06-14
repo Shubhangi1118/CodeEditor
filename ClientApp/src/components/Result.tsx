@@ -8,6 +8,7 @@ type Participant = {
 
 type Result = {
     _id: string;
+    questionNumber: number;
     participantId: string;
     outputs: Array<number>;
 };
@@ -49,7 +50,7 @@ const Result: React.FC = () => {
                                     <h4>Results:</h4>
                                     {participantResults.map((result) => (
                                         <div key={result._id}>
-                                            <h4>Result ID: {result._id}</h4>
+                                            <h4>Question No.: {result.questionNumber}</h4>
                                             <ul>
                                                 {result.outputs.map((output, index) => (
                                                     <li key={index}>
