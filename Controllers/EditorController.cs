@@ -33,6 +33,14 @@ namespace CodeEditor.Controllers
 
             return question;
         }
+        [HttpPut("{id:length(24)}")]
+        public async Task<IActionResult> Update(string id, EditorData updatedQuestion)
+        {
+            await _EditorSupervisor.UpdateEditorAsync(id, updatedQuestion);
+
+            return NoContent();
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Post(EditorData newQuestion)

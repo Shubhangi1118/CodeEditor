@@ -10,7 +10,7 @@ type _Question = {
 };
 
 function Editor() {
-
+    const [editIndex, setEditIndex] = React.useState<number>(-1);
     const [_id, setId] = React.useState<string>("");
     const [question, setQuestion] = React.useState<string>("");
     const [testCases, setTestCases] = React.useState<Array<string>>([]);
@@ -25,22 +25,44 @@ function Editor() {
     async function Load() {
         const result = await axios.get("https://localhost:44322/api/Editor");
         setQuestions(result.data);
+        setEditIndex(-1);
     }
-
+    function editQuestion(index: number) {
+        const question = Questions[index];
+        setId(question._id);
+        setQuestion(question.question);
+        setTestCases(question.testCases);
+        setExpectedOutputs(question.expectedOutputs);
+        setEditIndex(index);
+    }
     async function save(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault();
         try {
-            await axios.post("https://localhost:44322/api/Editor", {
-                _id: "",
-                question: question,
-                testCases: testCases,
-                expectedOutputs: expectedOutputs
-            });
-            alert("Question Added Successfully");
+            if (editIndex === -1) {
+                // Adding a new question
+                await axios.post("https://localhost:44322/api/Editor", {
+                    _id: "",
+                    question: question,
+                    testCases: testCases,
+                    expectedOutputs: expectedOutputs
+                });
+                alert("Question Added Successfully");
+            } else {
+                // Updating an existing question
+                await axios.put("https://localhost:44322/api/Editor/" + Questions[editIndex]._id, {
+                    _id: _id,
+                    question: question,
+                    testCases: testCases,
+                    expectedOutputs: expectedOutputs
+                });
+                alert("Question Updated Successfully");
+            }
+
             setId("");
             setQuestion("");
             setTestCases([]);
             setExpectedOutputs([]);
+            setEditIndex(-1);
             await Load();
         } catch (err) {
             alert(err);
@@ -165,7 +187,7 @@ function Editor() {
                         <th scope ="col">ExpectedOutputs</th>
                     </tr>
                 </thead>
-                {Questions.map(function fn(question: _Question) {
+                {Questions.map(function fn(question: _Question, index: number) {
                     return (
                         <tbody>
                             <tr>
@@ -174,16 +196,22 @@ function Editor() {
                                 <td>
                                     {question.testCases.map(function fn(testCase, index) {
                                         return (<div key={index}>{testCase}</div>);
-
                                     })}
                                 </td>
                                 <td>
                                     {question.expectedOutputs.map(function fn(expectedOutput, index) {
                                         return (<div key={index}>{expectedOutput}</div>);
-
                                     })}
-                                    </td>
-
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={() => editQuestion(index)}
+                                    >
+                                        Edit
+                                    </button>
+                                </td>
                                 <td>
                                     <button
                                         type="button"
