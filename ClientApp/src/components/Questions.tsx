@@ -13,10 +13,32 @@ interface EditorProps {
     onLanguageChange: (language: string) => void;
     selectedLanguage: string;
     languageOptions: Array<string>;
+    driverCode: Record<string, string>;
 }
-
-const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selectedLanguage, languageOptions }) => {
+const Editor: React.FC<EditorProps> = ({
+    code,
+    onChange,
+    onLanguageChange,
+    selectedLanguage,
+    languageOptions,
+    driverCode
+}) => {
     const editorRef = useRef<AceEditor | null>(null);
+
+    useEffect(() => {
+        if (editorRef.current) {
+            // Set the driver code as the initial value of the editor
+            if (selectedLanguage === 'C++') {
+                editorRef.current.editor.setValue(driverCode['cpp']);
+            }
+            else if (selectedLanguage === 'Java') {
+                editorRef.current.editor.setValue(driverCode['java']);
+            }
+            else if (selectedLanguage === 'Python') {
+                editorRef.current.editor.setValue(driverCode['python']);
+            }
+        }
+    }, [selectedLanguage, driverCode]);
 
     const handleChange = (value: string) => {
         onChange(value);
@@ -26,8 +48,8 @@ const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selec
         const language = event.target.value;
         onLanguageChange(language);
     };
-    let mode = '';
 
+    let mode = '';
     if (selectedLanguage === 'C++') {
         mode = 'c_cpp';
     } else if (selectedLanguage === 'Java') {
@@ -35,6 +57,7 @@ const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selec
     } else if (selectedLanguage === 'Python') {
         mode = 'python';
     }
+
     return (
         <div>
             <select value={selectedLanguage} onChange={handleLanguageChange}>
@@ -46,7 +69,7 @@ const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selec
             </select>
             <div className="editor-wrapper">
                 <AceEditor
-                    mode={mode }
+                    mode={mode}
                     theme="dracula"
                     value={code}
                     onChange={handleChange}
@@ -66,6 +89,7 @@ const Editor: React.FC<EditorProps> = ({ code, onChange, onLanguageChange, selec
         </div>
     );
 };
+
 interface OutputProps {
     result: string;
 }
@@ -77,14 +101,20 @@ const Output: React.FC<OutputProps> = ({ result }) => {
         </div>
     );
 };
+type TestCase = {
+    inputs: Array<string>;
+    expectedOutput: string;
+};
 
 type _Question = {
     _id: string;
     question: string;
-    testCases: Array<string>;
-    expectedOutputs: Array<string>;
-    
+    inputFormat: string;
+    outputFormat: string;
+    driverCode: Record<string, string>;
+    testCases: Array<TestCase>;
 };
+
 interface RouteParams {
     participantId: string;
 }
@@ -96,29 +126,32 @@ const Questions: React.FC = () => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [_Questions, setQuestions] = useState<Array<_Question>>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('C++');
-    const [customTestCase, setCustomTestCase] = useState(_Questions[currentQuestion]?.testCases[0] || '');
+    const [customTestCase, setCustomTestCase] = useState(_Questions[currentQuestion]?.testCases[0].inputs || []);
     const [customTestCaseEntered, setCustomTestCaseEntered] = useState(false);
     const languageOptions = ['C++', 'Java', 'Python'];
 
     const handleCodeChange = (newCode: string) => {
-        setCode(newCode);     
+        setCode(newCode);
     };
 
     const handleLanguageChange = (language: string) => {
         setSelectedLanguage(language);
     };
-    
+
     useEffect(() => {
         axios
             .get('https://localhost:44322/api/Editor')
             .then((response) => {
                 setQuestions(response.data);
+                // Set the custom test case to the first test case inputs of the current question
+                setCustomTestCase(response.data[currentQuestion]?.testCases[0]?.inputs || []);
             })
             .catch((err) => {
                 console.log(err);
             });
-    }, []);
-    
+    }, [currentQuestion]);
+;
+
     const handleNextQuestion = () => {
         const nextQuestion = currentQuestion + 1;
         if (nextQuestion < _Questions.length) {
@@ -130,7 +163,7 @@ const Questions: React.FC = () => {
     const handleSendFirstTestcase = () => {
         // Make API call to backend to execute code with the custom test case and expected output
         axios
-            .post('https://localhost:44322/api/Compiler2', { code, language: selectedLanguage, testCase: customTestCase })
+            .post('https://localhost:44322/api/Compiler2', { code, language: selectedLanguage, testCase: customTestCase, inputFormat: _Questions[currentQuestion].inputFormat })
             .then((response) => {
                 setResult(`Output: ${response.data}`); // Update with the response from the backend
             })
@@ -140,27 +173,35 @@ const Questions: React.FC = () => {
     };
 
     const handleSendAllTestcases = () => {
-        // Make API call to backend to execute code with all testcases and expected outputs
         if (_Questions.length === 0) {
             console.log('Questions data is not available.');
             return;
         }
 
-        axios.post('https://localhost:44322/api/Compiler', {
-            code,
-            language: selectedLanguage,
-            QuestionNumber: currentQuestion + 1,
-            testCases: _Questions[currentQuestion].testCases,
-            expectedOutputs: _Questions[currentQuestion].expectedOutputs,
-            participantId: participantId
-        })
-            .then((response) => {
-                setResult(`Output: "Success"`); // Update with the response from backend
+        const currentQuestionData = _Questions[currentQuestion];
+        const { testCases } = currentQuestionData;
+
+        const testCaseInputs = testCases.map((testCase) => testCase.inputs);
+        const testCaseExpectedOutputs = testCases.map((testCase) => testCase.expectedOutput);
+
+        axios
+            .post('https://localhost:44322/api/Compiler', {
+                code,
+                language: selectedLanguage,
+                QuestionNumber: currentQuestion + 1,
+                testCases: testCaseInputs,
+                expectedOutputs: testCaseExpectedOutputs,
+                participantId: participantId,
+                customTestCase: customTestCase,
+            })
+            .then(() => {
+                setResult('Success');
             })
             .catch((err) => {
                 console.log(err);
             });
     };
+
 
     return (
         <div className="row">
@@ -172,19 +213,21 @@ const Questions: React.FC = () => {
                         onLanguageChange={handleLanguageChange}
                         selectedLanguage={selectedLanguage}
                         languageOptions={languageOptions}
+                        driverCode={_Questions[currentQuestion]?.driverCode || {}}
                     />
                     <div className="form-group" key="customTestCase">
-                        <label>Custom Test Case</label>
-                        <input
-                            type="text"
+                        <label>Custom Input</label>
+                        <textarea
                             className="form-control"
                             id="customTestCase"
-                            value={customTestCaseEntered ? customTestCase : _Questions[currentQuestion]?.testCases[0] || ''}
+                            value={customTestCaseEntered ? customTestCase.join('\n') : _Questions[currentQuestion]?.testCases[0].inputs.join('\n')}
                             onChange={(event) => {
-                                setCustomTestCase(event.target.value);
+                                const inputValues = event.target.value.split('\n');
+                                setCustomTestCase(inputValues);
                                 setCustomTestCaseEntered(true);
                             }}
                         />
+
                     </div>
 
                     <button onClick={handleSendFirstTestcase} className="send-button">
