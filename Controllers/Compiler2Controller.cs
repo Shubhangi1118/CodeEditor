@@ -15,6 +15,7 @@ namespace CodeEditor.Controllers
 
     public class Compiler2Controller : ControllerBase
     {
+        //Dependency injection of CompilerRunSupervisor
         private readonly CompilerRunSupervisor _CompilerRunSupervisor;
 
         public Compiler2Controller(CompilerRunSupervisor CompilerRunsSupervisor) =>
@@ -23,8 +24,9 @@ namespace CodeEditor.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CodeInput2 codeInput)
         {
+            //using the Run method of CompilerRunSupervisor to get the output
             var output = await _CompilerRunSupervisor.Run(codeInput);
-            return Ok(output);
+            return Ok(output);// returning the ouput to the frontend
         }
 
     }

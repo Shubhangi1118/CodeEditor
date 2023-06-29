@@ -12,17 +12,19 @@ namespace CodeEditor.Controllers
     [Route("api/[controller]")]
     public class ParticipantController : Controller
     {
-
+        //Dependency injection of ParticipantSupervisor
         private ParticipantSupervisor _ParticipantSupervisor;
 
         public ParticipantController(ParticipantSupervisor ParticipantsSupervisor) =>
             _ParticipantSupervisor = ParticipantsSupervisor;
 
         [HttpGet]
+        //Getting the participants array from the database 
         public async Task<List<ParticipantData>> Get()=>
             await _ParticipantSupervisor.GetParticipantAsync();
 
         [HttpGet("{id:length(24)}")]
+        //Getting the participant value from database with teh given value
         public async Task<ActionResult<ParticipantData>> Get(string id)
         {
             var participant = await _ParticipantSupervisor.GetParticipantAsync(id);
@@ -36,6 +38,7 @@ namespace CodeEditor.Controllers
         }
 
         [HttpPost]
+        // creating a new participant in the database
         public async Task<IActionResult> Post(ParticipantData newParticipant)
         {
          await _ParticipantSupervisor.CreateParticipantAsync(newParticipant);

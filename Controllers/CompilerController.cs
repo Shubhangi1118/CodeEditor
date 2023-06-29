@@ -17,28 +17,32 @@ namespace CodeEditor.Controllers
     
     public class CompilerController : ControllerBase
     {
+        //dependency injection of ResultSupervisor
         private readonly ResultSupervisor _ResultSupervisor;
 
         public CompilerController(ResultSupervisor ResultsSupervisor) =>
             _ResultSupervisor = ResultsSupervisor;
 
         [HttpGet]
+        // using the GetResultAsync method of ResultSupervisor to get the array of Results
         public async Task<List<ResultData>> Get() =>
             await _ResultSupervisor.GetResultAsync();
 
         [HttpGet("{id:length(24)}")]
+        //getting the result with given id and returning it
         public async Task<ActionResult<ResultData>> Get(string id)
         {
-            var participant = await _ResultSupervisor.GetResultAsync(id);
+            var result = await _ResultSupervisor.GetResultAsync(id);
 
-            if (participant is null)
+            if (result is null)
             {
                 return NotFound();
             }
-            return participant;
+            return result;
         }
         
         [HttpPost]
+        //sending the code and otehr parameters for execution
         public async Task<IActionResult> Post([FromBody] CodeInput codeInput)
         {
             var response = await _ResultSupervisor.CreateResultAsync(codeInput);

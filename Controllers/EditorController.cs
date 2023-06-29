@@ -10,17 +10,19 @@ namespace CodeEditor.Controllers
     [Route("api/[controller]")]
     public class EditorController : Controller
     {
+        //Dependency injection of EditorSupervisor
         private readonly EditorSupervisor _EditorSupervisor;
 
         public EditorController(EditorSupervisor EditorsSupervisor) =>
             _EditorSupervisor = EditorsSupervisor;
 
         [HttpGet]
+        // Getting the array of questions
         public async Task<List<EditorData>> Get()=>
         
             await _EditorSupervisor.GetEditorAsync();
             
-
+        //Getting the Question with the given id and returning question
         [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<EditorData>> Get(string id)
         {
@@ -33,6 +35,7 @@ namespace CodeEditor.Controllers
 
             return question;
         }
+        //Updating the question value in the database
         [HttpPut("{id:length(24)}")]
         public async Task<IActionResult> Update(string id, EditorData updatedQuestion)
         {
@@ -43,6 +46,7 @@ namespace CodeEditor.Controllers
 
 
         [HttpPost]
+        //Creating a new question in the database
         public async Task<IActionResult> Post(EditorData newQuestion)
         {
             await _EditorSupervisor.CreateEditorAsync(newQuestion);
@@ -51,6 +55,7 @@ namespace CodeEditor.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
+        // Deleting the question from the database with the given id
         public async Task<IActionResult> Delete(string id)
         {
             await _EditorSupervisor.RemoveEditorAsync(id);
